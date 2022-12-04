@@ -13,7 +13,7 @@
 你说你还没有安装Python？那还等什么！立马安装吧。如果操作系统默认没有提供Python安装包，可以从[Python官方网站](http://python.org/download/)下载。如果你使用Microsoft Windows操作系统并且打算使用WSL或者Cygwin，需要注意，不要在上面使用Windows版本的Python，而要使用类Unix版本，比如从Ubuntu获取（对应WSL）或从Cygwin上获取。
 
 为了验证Python是否正确安装，你可以打开一个终端窗口并输入`python3`（如果不存在这个命令，那就输入`python`）。预期的输出如下：
-```
+```python
 $ python3
 Python 3.5.2 (default, Nov 17 2016, 17:05:23)
 [GCC 5.4.0 20160609] on linux
