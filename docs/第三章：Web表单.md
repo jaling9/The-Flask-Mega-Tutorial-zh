@@ -15,7 +15,7 @@ Web表单是所有Web应用程序中最基本的组成部分之一。 我将使�
 我将使用[Flask-WTF](http://packages.python.org/Flask-WTF)插件来处理本应用中的Web表单，它对[WTForms](https://wtforms.readthedocs.io/)进行了浅层次的封装以便和Flask完美结合。这是本应用引入的第一个Flask插件，但绝不是最后一个。插件是Flask生态中的举足轻重的一部分，Flask故意设计为只包含核心功能以保持代码的整洁，并暴露接口以对接解决不同问题的插件。
 
 Flask插件都是常规的Python三方包，可以使用`pip`安装。 那就继续在你的虚拟环境中安装Flask-WTF吧：
-```
+```python
 (venv) $ pip install flask-wtf
 ```
 
@@ -24,7 +24,7 @@ Flask插件都是常规的Python三方包，可以使用`pip`安装。 那就继
 到目前为止，这个应用程序都非常简单，因此我不需要考虑它的*配置*。 但是，除了最简单的应用，你会发现Flask（也可能是Flask插件）为使用者提供了一些可自由配置的选项。你需要决定传入什么样的配置变量列表到框架中。 
 
 有几种途径来为应用指定配置选项。最基本的解决方案是使用`app.config`对象，它是一个类似字典的对象，可以将配置以键值的方式存储其中。例如，你可以这样做：
-```
+```python
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'you-will-never-guess'
 # ... add more variables here as needed
@@ -33,7 +33,7 @@ app.config['SECRET_KEY'] = 'you-will-never-guess'
 上面的代码虽然可以为应用创建配置，但是我有*松耦合*的癖好。因此，我不会让配置和应用代码处于同一个部分，而是使用稍微复杂点的结构，将配置保存到一个单独的文件中。
 
 使用类来存储配置变量，才是我真正的风格。我会将这个配置类存储到单独的Python模块，以保持良好的组织结构。下面就让你见识一下这个存储在顶级目录下，名为*config.py*的模块的配置类吧：
-```
+```python
 import os
 
 class Config(object):
@@ -47,7 +47,7 @@ class Config(object):
 密钥被定义成由`or`运算符连接两个项的表达式。第一个项查找环境变量`SECRET_KEY`的值，第二个项是一个硬编码的字符串。这种首先检查环境变量中是否存在这个配置，找不到的情况下就使用硬编码字符串的配置变量的模式你将会反复看到。在开发阶段，安全性要求较低，因此可以直接使用硬编码字符串。但是，当应用部署到生产服务器上的时候，我将设置一个独一无二且难以揣摩的环境变量，这样，服务器就拥有了一个别人未知的安全密钥了。
 
 拥有了这样一份配置文件，我还需要通知Flask读取并使用它。可以在生成Flask应用之后，利用`app.config.from_object()`方法来完成这个操作：
-```
+```python
 from flask import Flask
 from config import Config
 
@@ -60,7 +60,7 @@ from app import routes
 导入`Config`类的方式，乍一看可能会让人感到困惑，不过如果你注意到从`flask`包导入`Flask`类的过程，就会发现这其实是类似的操作。 显而易见，小写的“config”是Python模块*config.py*的名字，另一个含有大写“C”的是类。
 
 正如我上面提到的，可以使用`app.config`中的字典语法来访问配置项。 在下面的Python交互式会话中，你可以看到密钥的值：
-```
+```python
 >>> from microblog import app
 >>> app.config['SECRET_KEY']
 'you-will-never-guess'
@@ -71,7 +71,7 @@ from app import routes
 Flask-WTF插件使用Python类来表示Web表单。表单类只需将表单的字段定义为类属性即可。
 
 为了再次践行我的*松耦合*原则，我会将表单类单独存储到名为*app/forms.py*的模块中。就让我们来定义用户登录表单来做一个开始吧，它会要求用户输入username和password，并提供一个“remember me”的复选框和提交按钮：
-```
+```python
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
@@ -92,7 +92,7 @@ class LoginForm(FlaskForm):
 ## 表单模板
 
 下一步是将表单添加到HTML模板以便渲染到网页上。 令人高兴的是在LoginForm类中定义的字段支持自渲染为HTML元素，所以这个任务相当简单。 我将把登录模板存储在文件*app/templates/login.html *中，代码如下：
-```
+```python
 {% extends "base.html" %}
 
 {% block content %}
@@ -128,7 +128,7 @@ HTML`<form>`元素被用作Web表单的容器。 表单的`action`属性告诉�
 完成这个表单的最后一步就是编写一个新的视图函数来渲染上面创建的模板。
 
 函数的逻辑只需创建一个form实例，并将其传入渲染模板的函数中即可，然后用*/login* URL来关联它。这个视图函数也存储到*app/routes.py*模块中，代码如下：
-```
+```python
 from flask import render_template
 from app import app
 from app.forms import LoginForm
@@ -144,7 +144,7 @@ def login():
 我从*forms.py*导入`LoginForm`类，并生成了一个实例传入模板。`form=form`的语法看起来奇怪，这是Python函数或方法传入关键字参数的方式，左边的`form`代表在模板中引用的变量名称，右边则是传入的*form*实例。这就是获取表单字段渲染结果的所有代码了。
 
 在基础模板*templates/base.html*的导航栏上添加登录的链接，以便访问：
-```
+```python
 <div>
     Microblog:
     <a href="/index">Home</a>
@@ -159,7 +159,7 @@ def login():
 ## 接收表单数据
 
 点击提交按钮，浏览器将显示“Method Not Allowed”错误。为什么呢？ 这是因为之前的登录视图功能到目前为止只完成了一半的工作。 它可以在网页上显示表单，但没有逻辑来处理用户提交的数据。Flask-WTF可以轻松完成这部分工作， 以下是视图函数的更新版本，它接受和验证用户提交的数据：
-```
+```python
 from flask import render_template, flash, redirect
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -183,7 +183,7 @@ def login():
 登录视图函数中使用的第二个新函数是`redirect()`。这个函数指引浏览器自动重定向到它的参数所关联的URL。当前视图函数使用它将用户重定向到应用的主页。
 
 当你调用`flash()`函数后，Flask会存储这个消息，但是却不会奇迹般地直接出现在页面上。模板需要将消息渲染到基础模板中，才能让所有派生出来的模板都能显示出来。更新后的基础模板代码如下：
-```
+```python
 <html>
     <head>
         {% if title %}
@@ -228,7 +228,7 @@ def login():
 实际上，表单验证器已经生成了这些描述性错误消息，所缺少的不过是模板中的一些额外的逻辑来渲染它们。
 
 这是给username和password字段添加了验证描述性错误消息渲染逻辑之后的登录模板：
-```
+```python
 {% extends "base.html" %}
 
 {% block content %}
@@ -264,7 +264,7 @@ def login():
 ## 生成链接
 
 现在的登录表单已经相当完整了，但在结束本章之前，我想讨论在模板和重定向中包含链接的妥当方法。 到目前为止，你已经看到了一些定义链接的例子。 例如，这是当前基础模板中的导航栏代码：
-```
+```python
     <div>
         Microblog:
         <a href="/index">Home</a>
@@ -273,7 +273,7 @@ def login():
 ```
 
 登录视图函数同样定义了一个传入到`redirect()`函数作为参数的链接：
-```
+```python
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -290,7 +290,7 @@ def login():
 你可能会问，为什么使用函数名称而不是URL？ 事实是，URL比起视图函数名称变更的可能性更高。 稍后你会了解到的第二个原因是，一些URL中包含动态组件，手动生成这些URL需要连接多个元素，枯燥乏味且容易出错。 `url_for()`生成这种复杂的URL就方便许多。
 
 因此，从现在起，一旦我需要生成应用链接，我就会使用`url_for()`。基础模板中的导航栏部分代码变更如下：
-```
+```python
     <div>
         Microblog:
         <a href="{{ url_for('index') }}">Home</a>
@@ -299,7 +299,7 @@ def login():
 ```
 
 `login()`视图函数也做了相应变更：
-```
+```python
 from flask import render_template, flash, redirect, url_for
 
 # ...
